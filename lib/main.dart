@@ -17,7 +17,7 @@ class ListenAudio extends StatelessWidget {
     return MaterialApp(
         theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.green, brightness: Brightness.light)),
+                seedColor: Colors.green, brightness: Brightness.dark)),
         home: const ListenerHomepage());
   }
 }
@@ -37,7 +37,8 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Audio Listener'),
+        title: const Text('Audio Listener', style: TextStyle(fontSize: 30, fontStyle: FontStyle.italic)),
+        
       ),
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       body: Center(
