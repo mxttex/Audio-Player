@@ -37,7 +37,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Audio Listener', style: TextStyle(fontSize: 30, fontStyle: FontStyle.italic)),
+        title: const Text('Audio Listener', style: TextStyle(fontSize: 25, fontStyle: FontStyle.italic, color: Color.fromRGBO(255, 255, 255, 0))),
         
       ),
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -61,12 +61,14 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
       floatingActionButton: FloatingActionButton(
         onPressed: pickFile,
         child: const Icon(Icons.audio_file),
+        
       ),
     );
   }
 
   void pickFile() async {
-    result = await FilePicker.platform.pickFiles();
+
+    result = await FilePicker.platform.pickFiles(initialDirectory: "Memoria/Android/media/com.whatsapp/WhatsApp/Media/Whatsapp Voice Notes");
     setState(() {
       
     });
