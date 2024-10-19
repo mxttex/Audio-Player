@@ -37,7 +37,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Audio Listener', style: TextStyle(fontSize: 25, fontStyle: FontStyle.italic, color: Color.fromRGBO(255, 255, 255, 0))),
+        title: const Text('Audio Listener', style: TextStyle(fontSize: 25, fontStyle: FontStyle.italic, color: Colors.white)),
         
       ),
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -47,7 +47,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
           Image.network(
               "https://static.vecteezy.com/system/resources/previews/023/986/631/original/whatsapp-logo-whatsapp-logo-transparent-whatsapp-icon-transparent-free-free-png.png",
               height: 300),
-          result == null ? const Text("scegli un vocale") : Text(result!.files.single.name),
+          result == null ? const Text("Scegli un vocale") : Text(result!.files.single.name),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -68,7 +68,8 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
 
   void pickFile() async {
 
-    result = await FilePicker.platform.pickFiles(initialDirectory: "Memoria/Android/media/com.whatsapp/WhatsApp/Media/Whatsapp Voice Notes");
+    //il parametro initialDirectory funziona solo su android
+    result = await FilePicker.platform.pickFiles(type: FileType.audio,initialDirectory: "Memoria/Android/media/com.whatsapp/WhatsApp/Media/Whatsapp Voice Notes");
     setState(() {
       
     });
