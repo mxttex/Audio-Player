@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   file_picker: ^8.1.2
   audioplayers: ^6.1.0
-
+  quickalert: ^1.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
