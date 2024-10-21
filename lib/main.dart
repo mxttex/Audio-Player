@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:quickalert/quickalert.dart';
 
 void main() {
   runApp(const ListenAudio());
@@ -33,7 +34,8 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   AudioPlayer audioPlayer = AudioPlayer();
   double playRate = 1;
   bool playing = false;
-  Icon icon = Icon(Icons.play_arrow);
+  Icon icon = const Icon(Icons.play_arrow);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,11 +59,21 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              IconButton(onPressed: playAudio, icon: icon),
+              // alert che si attiva tramite bottone
               IconButton(
-                  onPressed: playAudio, icon: icon),
+                  onPressed: () {
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.error,
+                      title: 'Errore',
+                      text: "Il file selezionato non è un video",
+                    );
+                  },
+                  icon: const Icon(Icons.error)),
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
-          )
+          ),
         ],
       )),
       floatingActionButton: FloatingActionButton(
@@ -72,11 +84,24 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   }
 
   void pickFile() async {
-    //il parametro initialDirectory funziona solo su android
     result = await FilePicker.platform.pickFiles(
         type: FileType.audio,
         initialDirectory:
             "Memoria/Android/media/com.whatsapp/WhatsApp/Media/Whatsapp Voice Notes");
+    if (result != null && result!.files.single.name.endsWith('.opus')) {
+      // Mostra l'avviso se il file non è del tipo giusto
+      setState(() {});
+    } else {
+      setState(() {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Errore',
+          text: "Il file selezionato non è un audio di whatsapp",
+        );
+        result = null;
+      });
+    }
     setState(() {});
   }
 
@@ -84,13 +109,13 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
     if (result != null && !playing) {
       audioPlayer.play(DeviceFileSource(result!.files.single.path!));
       setState(() {
-        icon = Icon(Icons.pause);
+        icon = const Icon(Icons.pause);
         playing = true;
       });
     } else {
       audioPlayer.pause();
       setState(() {
-        icon = Icon(Icons.play_arrow);
+        icon = const Icon(Icons.play_arrow);
         playing = false;
       });
     }
