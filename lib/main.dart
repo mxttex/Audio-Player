@@ -1,11 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:audioplayers/audioplayers.dart';
-
 
 void main() {
   runApp(const ListenAudio());
@@ -37,6 +34,25 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   double playRate = 1;
   bool playing = false;
   Icon icon = const Icon(Icons.play_arrow);
+  Duration _duration = const Duration();
+  Duration _position = const Duration();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ascolta gli aggiornamenti della durata e della posizione
+    audioPlayer.onDurationChanged.listen((Duration d) {
+      setState(() {
+        _duration = d;
+      });
+    });
+
+    audioPlayer.onPositionChanged.listen((Duration p) {
+      setState(() {
+        _position = p;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +92,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
           ),
+          slider()
         ],
       )),
       floatingActionButton: FloatingActionButton(
@@ -127,5 +144,18 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
     playRate = playRate == 1 ? 2 : 1;
     audioPlayer.setPlaybackRate(playRate);
     setState(() {});
+  }
+
+  Widget slider() {
+    return Slider(
+        value: _position.inSeconds.toDouble(),
+        min: 0.0,
+        max: _duration.inSeconds.toDouble(),
+        onChanged: (double value) {
+          setState(() {
+            // Cambia la posizione dell'audio
+            audioPlayer.seek(Duration(seconds: value.toInt()));
+          });
+        });
   }
 }
