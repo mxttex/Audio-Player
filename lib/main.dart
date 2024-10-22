@@ -34,8 +34,9 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   double playRate = 1;
   bool playing = false;
   Icon icon = const Icon(Icons.play_arrow);
-  Duration? _duration = const Duration();
+  Duration _duration = const Duration();
   Duration _position = const Duration();
+  DateTime lastUpd = DateTime.now();
 
   @override
   void initState() {
@@ -44,17 +45,19 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   }
 
   void aggiornaDurataEPosizione() {
-    Duration ds = Duration.zero, ps = Duration.zero;
     audioPlayer.onPositionChanged.listen((Duration p) {
-      ps = p;
-    });
-    audioPlayer.onDurationChanged.listen((Duration d) {
-      ds = d;
+      if (DateTime.now().difference(lastUpd).inMilliseconds > 500) {
+        setState(() {
+          _position = p;
+        });
+        lastUpd = DateTime.now();
+      }
     });
 
-    setState(() {
-      _duration = ds;
-      _position = ps;
+    audioPlayer.onDurationChanged.listen((Duration d) {
+      setState(() {
+        _duration = d;
+      });
     });
   }
 
@@ -151,13 +154,14 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
 
   Widget slider() {
     return Slider(
-        value: _position.inSeconds.toDouble(),
-        min: 0.0,
-        max: _duration.inSeconds.toDouble(),
-        onChanged: (double value) {
-          setState(() {
-            audioPlayer.seek(Duration(seconds: value.toInt()));
-          });
+      value: _position.inSeconds.toDouble(),
+      min: 0.0,
+      max: (_duration.inSeconds > 0) ? _duration.inSeconds.toDouble() : 1.0,
+      onChanged: (double value) {
+        setState(() {
+          _position = Duration(seconds: value.toInt());
         });
+      },
+    );
   }
 }
