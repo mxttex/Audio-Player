@@ -44,14 +44,10 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   }
 
   void aggiornaDurataEPosizione() {
-    //visto che laggava, ho provato ad aggiornalo in questo modo, ma continua a laggare --> da farsi spiegare
     audioPlayer.onPositionChanged.listen((Duration p) {
-      if (DateTime.now().difference(lastUpd).inMilliseconds > 500) {
         setState(() {
           _position = p;
         });
-        lastUpd = DateTime.now();
-      }
     });
 
     audioPlayer.onDurationChanged.listen((Duration d) {
