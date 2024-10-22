@@ -34,23 +34,27 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   double playRate = 1;
   bool playing = false;
   Icon icon = const Icon(Icons.play_arrow);
-  Duration _duration = const Duration();
+  Duration? _duration = const Duration();
   Duration _position = const Duration();
 
   @override
   void initState() {
     super.initState();
-    // Ascolta gli aggiornamenti della durata e della posizione
+    aggiornaDurataEPosizione();
+  }
+
+  void aggiornaDurataEPosizione() {
+    Duration ds = Duration.zero, ps = Duration.zero;
+    audioPlayer.onPositionChanged.listen((Duration p) {
+      ps = p;
+    });
     audioPlayer.onDurationChanged.listen((Duration d) {
-      setState(() {
-        _duration = d;
-      });
+      ds = d;
     });
 
-    audioPlayer.onPositionChanged.listen((Duration p) {
-      setState(() {
-        _position = p;
-      });
+    setState(() {
+      _duration = ds;
+      _position = ps;
     });
   }
 
@@ -92,7 +96,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
           ),
-          slider()
+          slider() //--> questa parte dalla documentazione non l'ho capita, sarebbe da spiegare
         ],
       )),
       floatingActionButton: FloatingActionButton(
@@ -121,7 +125,6 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         result = null;
       });
     }
-    setState(() {});
   }
 
   void playAudio() {
@@ -143,7 +146,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   void playbackRate() {
     playRate = playRate == 1 ? 2 : 1;
     audioPlayer.setPlaybackRate(playRate);
-    setState(() {});
+    //setState(() {});
   }
 
   Widget slider() {
@@ -153,7 +156,6 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         max: _duration.inSeconds.toDouble(),
         onChanged: (double value) {
           setState(() {
-            // Cambia la posizione dell'audio
             audioPlayer.seek(Duration(seconds: value.toInt()));
           });
         });
