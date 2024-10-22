@@ -33,7 +33,6 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   AudioPlayer audioPlayer = AudioPlayer();
   double playRate = 1;
   bool playing = false;
-  Icon icon = const Icon(Icons.play_arrow);
   Duration _duration = const Duration();
   Duration _position = const Duration();
   DateTime lastUpd = DateTime.now();
@@ -45,6 +44,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   }
 
   void aggiornaDurataEPosizione() {
+    //visto che laggava, ho provato ad aggiornalo in questo modo, ma continua a laggare --> da farsi spiegare
     audioPlayer.onPositionChanged.listen((Duration p) {
       if (DateTime.now().difference(lastUpd).inMilliseconds > 500) {
         setState(() {
@@ -84,18 +84,9 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(onPressed: playAudio, icon: icon),
-              // alert che si attiva tramite bottone
-              IconButton(
-                  onPressed: () {
-                    QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.error,
-                      title: 'Errore',
-                      text: "Il file selezionato non è un video",
-                    );
-                  },
-                  icon: const Icon(Icons.error)),
+              IconButton(onPressed: playAudio, icon: const Icon(Icons.play_arrow)),
+              IconButton(onPressed: pauseAudio, icon: const Icon(Icons.pause)),
+              IconButton(onPressed: stopAudio, icon: const Icon(Icons.stop)),
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
           ),
@@ -131,18 +122,24 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   }
 
   void playAudio() {
-    if (result != null && !playing) {
+    if (result != null) {
       audioPlayer.play(DeviceFileSource(result!.files.single.path!));
-      setState(() {
-        icon = const Icon(Icons.pause);
-        playing = true;
-      });
-    } else {
+    }else{
+      showNoFileExpecption();
+    }
+  }
+  void pauseAudio() {
+    if (result != null) {
       audioPlayer.pause();
-      setState(() {
-        icon = const Icon(Icons.play_arrow);
-        playing = false;
-      });
+    }else{
+      showNoFileExpecption();
+    }
+  }
+  void stopAudio() {
+    if (result != null) {
+      audioPlayer.stop();
+    }else{
+      showNoFileExpecption();
     }
   }
 
@@ -156,12 +153,23 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
     return Slider(
       value: _position.inSeconds.toDouble(),
       min: 0.0,
-      max: (_duration.inSeconds > 0) ? _duration.inSeconds.toDouble() : 1.0,
+      max: _duration.inSeconds.toDouble(),
       onChanged: (double value) {
         setState(() {
           _position = Duration(seconds: value.toInt());
         });
       },
     );
+  }
+  
+  void showNoFileExpecption() {
+    setState(() {
+      QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Errore',
+          text: "Non hai selezionato nessun file!",
+        );
+    });
   }
 }
