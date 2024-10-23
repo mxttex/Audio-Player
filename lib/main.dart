@@ -153,6 +153,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         value: _position.inMicroseconds.toDouble(),
         min: 0.0,
         max: _duration.inMicroseconds.toDouble(),
+        divisions: 10000000,
         onChanged: (double value) {
           setState(() {
             _position = Duration(microseconds: (value.toInt()));
