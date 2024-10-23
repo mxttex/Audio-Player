@@ -81,7 +81,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
           ),
-          slider() //--> questa parte dalla documentazione non l'ho capita, sarebbe da spiegare
+          SizedBox(child: slider(), width: 330.0,) //--> questa parte dalla documentazione non l'ho capita, sarebbe da spiegare
         ],
       )),
       floatingActionButton: FloatingActionButton(
@@ -96,9 +96,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         type: FileType.audio,
         initialDirectory:
             "Memoria/Android/media/com.whatsapp/WhatsApp/Media/Whatsapp Voice Notes");
-    if (result != null && result!.files.single.name.endsWith('.opus')) {
-      // Mostra l'avviso se il file non è del tipo giusto
-    } else {
+    if (result != null && !result!.files.single.name.endsWith('.opus')) {
       setState(() {
         QuickAlert.show(
           context: context,
@@ -108,7 +106,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         );
         result = null;
       });
-    }
+    } 
   }
 
   void playAudio() {
@@ -153,7 +151,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
       max: _duration.inSeconds.toDouble(),
       onChanged: (double value) {
         setState(() {
-          //_position = Duration(seconds: value.toInt());
+          _position = Duration(seconds: value.toInt());
           audioPlayer.seek(_position);
         });
       },
