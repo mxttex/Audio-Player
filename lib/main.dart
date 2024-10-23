@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -34,7 +34,23 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   AudioPlayer audioPlayer = AudioPlayer();
   double playRate = 1;
   bool playing = false;
-  Icon icon = const Icon(Icons.play_arrow);
+  Duration _duration = const Duration();
+  Duration _position = const Duration();
+  DateTime lastUpdate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    aggiornaPosizione();
+  }
+
+  void aggiornaPosizione() {
+    audioPlayer.onPositionChanged.listen((Duration p) {
+      setState(() {
+        _position = p;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,21 +75,17 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(onPressed: playAudio, icon: icon),
-              // alert che si attiva tramite bottone
               IconButton(
-                  onPressed: () {
-                    QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.error,
-                      title: 'Errore',
-                      text: "Il file selezionato non è un video",
-                    );
-                  },
-                  icon: const Icon(Icons.error)),
+                  onPressed: playAudio, icon: const Icon(Icons.play_arrow)),
+              IconButton(onPressed: pauseAudio, icon: const Icon(Icons.pause)),
+              IconButton(onPressed: stopAudio, icon: const Icon(Icons.stop)),
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
           ),
+          SizedBox(
+            child: slider(),
+            width: 300.0,
+          )
         ],
       )),
       floatingActionButton: FloatingActionButton(
@@ -88,10 +100,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         type: FileType.audio,
         initialDirectory:
             "Memoria/Android/media/com.whatsapp/WhatsApp/Media/Whatsapp Voice Notes");
-    if (result != null && result!.files.single.name.endsWith('.opus')) {
-      // Mostra l'avviso se il file non è del tipo giusto
-      setState(() {});
-    } else {
+    if (result != null && !result!.files.single.name.endsWith('.opus')) {
       setState(() {
         QuickAlert.show(
           context: context,
@@ -102,28 +111,64 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         result = null;
       });
     }
-    setState(() {});
   }
 
   void playAudio() {
-    if (result != null && !playing) {
+    if (result != null) {
       audioPlayer.play(DeviceFileSource(result!.files.single.path!));
-      setState(() {
-        icon = const Icon(Icons.pause);
-        playing = true;
+      audioPlayer.onDurationChanged.listen((Duration d) {
+        setState(() {
+          _duration = d;
+        });
       });
     } else {
+      showNoFileExpecption();
+    }
+  }
+
+  void pauseAudio() {
+    if (result != null) {
       audioPlayer.pause();
-      setState(() {
-        icon = const Icon(Icons.play_arrow);
-        playing = false;
-      });
+    } else {
+      showNoFileExpecption();
+    }
+  }
+
+  void stopAudio() {
+    if (result != null) {
+      audioPlayer.stop();
+      _position = Duration.zero;
+    } else {
+      showNoFileExpecption();
     }
   }
 
   void playbackRate() {
     playRate = playRate == 1 ? 2 : 1;
     audioPlayer.setPlaybackRate(playRate);
-    setState(() {});
+  }
+
+  Widget slider() {
+    return Slider(
+        value: _position.inMicroseconds.toDouble(),
+        min: 0.0,
+        max: _duration.inMicroseconds.toDouble(),
+        onChanged: (double value) {
+          setState(() {
+            _position = Duration(microseconds: (value.toInt()));
+            audioPlayer.seek(_position);
+          });
+        });
+  }
+
+  void showNoFileExpecption() {
+    setState(() {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Errore',
+        text: "Non hai selezionato nessun file!",
+      );
+    });
   }
 }
