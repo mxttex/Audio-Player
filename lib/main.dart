@@ -153,7 +153,8 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
       max: _duration.inSeconds.toDouble(),
       onChanged: (double value) {
         setState(() {
-          _position = Duration(seconds: value.toInt());
+          //_position = Duration(seconds: value.toInt());
+          audioPlayer.seek(_position);
         });
       },
     );
