@@ -36,6 +36,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   bool playing = false;
   Duration _duration = const Duration();
   Duration _position = const Duration();
+  DateTime lastUpdate = DateTime.now();
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
     aggiornaPosizione();
   }
 
-  void aggiornaPosizione(){
+  void aggiornaPosizione() {
     audioPlayer.onPositionChanged.listen((Duration p) {
       setState(() {
         _position = p;
@@ -81,7 +82,10 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
               TextButton(onPressed: playbackRate, child: Text('x$playRate')),
             ],
           ),
-          SizedBox(child: slider(), width: 330.0,) //--> questa parte dalla documentazione non l'ho capita, sarebbe da spiegare
+          SizedBox(
+            child: slider(),
+            width: 300.0,
+          )
         ],
       )),
       floatingActionButton: FloatingActionButton(
@@ -106,7 +110,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
         );
         result = null;
       });
-    } 
+    }
   }
 
   void playAudio() {
@@ -133,6 +137,7 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   void stopAudio() {
     if (result != null) {
       audioPlayer.stop();
+      _position = Duration.zero;
     } else {
       showNoFileExpecption();
     }
@@ -141,21 +146,19 @@ class _ListenerHomepageState extends State<ListenerHomepage> {
   void playbackRate() {
     playRate = playRate == 1 ? 2 : 1;
     audioPlayer.setPlaybackRate(playRate);
-    //setState(() {});
   }
 
   Widget slider() {
     return Slider(
-      value: _position.inSeconds.toDouble(),
-      min: 0.0,
-      max: _duration.inSeconds.toDouble(),
-      onChanged: (double value) {
-        setState(() {
-          _position = Duration(seconds: value.toInt());
-          audioPlayer.seek(_position);
+        value: _position.inMicroseconds.toDouble(),
+        min: 0.0,
+        max: _duration.inMicroseconds.toDouble(),
+        onChanged: (double value) {
+          setState(() {
+            _position = Duration(microseconds: (value.toInt()));
+            audioPlayer.seek(_position);
+          });
         });
-      },
-    );
   }
 
   void showNoFileExpecption() {
